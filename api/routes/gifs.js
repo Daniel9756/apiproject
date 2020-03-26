@@ -4,13 +4,9 @@ const router = express.Router();
 const multer = require("multer");
 const cloudinary = require("cloudinary");
 const cloudinaryStorage = require("multer-storage-cloudinary");
-const randomId = require('random-id');
+const randomId = require("random-id");
 const jwt = require("jsonwebtoken");
 const checkAuth = require("./checkAuth");
-
-
-
-
 
 /* const storage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -43,34 +39,38 @@ cloudinary.config({
 
 const storage = cloudinaryStorage({
   cloudinary,
-  folder: 'gifImages',
-  allowedFormats: ['jpg', 'png', 'jpeg'],
-  transformation: [{ width: 500, height: 500, crop: 'limit' }]
+  folder: "gifImages",
+  allowedFormats: ["jpg", "png", "jpeg"],
+  transformation: [{ width: 500, height: 500, crop: "limit" }]
 });
 const upload = multer({ storage: storage });
 
-
-const pool = require('./pg');
+const pool = require("./pg");
 
 router.post("/", checkAuth, upload.single("gifImages"), (req, res, next) => {
   console.log(req.file, "file");
   const gifImages = {};
   const title = req.body.title;
-   gifImages.url = req.file.url;
-   gifImages.id = req.file.public_id;
-   const id =  randomId();
+  gifImages.url = req.file.url;
+  gifImages.id = req.file.public_id;
+  const id = randomId();
   //const image = req.file
   pool
-    .query("INSERT INTO gifs (id, title, imageurl) VALUES($1, $2, $3)", [id, title, req.file.url])
+    .query(
+      "INSERT INTO gifs (id, title, imageurl, authorName) VALUES($1, $2, $3, $4)",
+      [id, title, req.file.url, authorName]
+    )
     .then(data => {
       res.status(201).json({
         message: "GIF image successfully posted",
         data: {
-          title: title,
-          createdOn: new Date(),
+          title,
+          authorName,
           imageUrl: gifImages.url,
           gitImages: gifImages.id,
-          gifId: id
+          gifId: id,
+          createdOn: new Date(),
+
         }
       });
     })

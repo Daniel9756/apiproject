@@ -24,17 +24,17 @@ pool
 });
 
 router.post('/', checkAuth, (req, res) => {
-    console.log(req, 'body')
-    const { title, article } = req.body;
+    console.log(req)
+    const { title, article, authorName } = req.body;
     const id = randomId();
     pool
-    .query('INSERT INTO articles (id, title, article) VALUES($1, $2, $3) RETURNING *', 
-    [id, title, article])
+    .query('INSERT INTO articles (id, title, article, "authorName") VALUES($1, $2, $3, $4) RETURNING *', 
+    [id, title, article, authorName])
     .then(data => {
         res.status(200).json({
             message: 'Article successfully posted',
             createdOn: new Date(), 
-            data: { title, article }   
+            data: { title, article, authorName }   
         })
     })
     .catch(err => {

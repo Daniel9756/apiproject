@@ -32,7 +32,7 @@ router.post("/signup", (req, res, next) => {
 
             pool
               .query(
-                'INSERT INTO employees (id, "firstName", "lastName", email, password,  gender, jobrole, department, address, "isAdmin" ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
+                'INSERT INTO employees (id, "firstName", "lastName", email, password,  gender, "jobRole", department, address, "isAdmin" ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
                 [
                   id,
                   req.body.firstName,
@@ -48,9 +48,19 @@ router.post("/signup", (req, res, next) => {
               )
               .then(result => {
                 console.log(result);
+                const token = jwt.sign(
+                  {
+                    email: result.rows[0].email,
+                    userId: result.rows[0].id
+                  },
+                  process.env.JWT_KEY,
+                  {
+                    expiresIn: "1h"
+                  }
+                );
                 res.status(200).json({
                   message: "User account successfully created",
-                  token: hash,
+                  token: token,              
                   userId: id,
                   user: result.rows[0]
                 });
@@ -90,10 +100,10 @@ router.post("/login", (req, res, next) => {
                 userId: data.rows[0].id
               },
               process.env.JWT_KEY,
-               {
+              {
                 expiresIn: "1h"
               }
-              );
+            );
             res.status(200).json({
               message: "User login successful",
               token: token
@@ -105,7 +115,7 @@ router.post("/login", (req, res, next) => {
         .catch(err => {
           console.log(err);
           return res.status(400).json({
-            message: "Authentication failed"
+            message: "Authentication error"
           });
         });
     });
