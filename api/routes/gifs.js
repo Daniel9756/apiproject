@@ -7,6 +7,8 @@ const cloudinaryStorage = require("multer-storage-cloudinary");
 const randomId = require("random-id");
 const jwt = require("jsonwebtoken");
 const checkAuth = require("./checkAuth");
+const pool = require("./pg");
+
 
 /* const storage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -39,35 +41,39 @@ cloudinary.config({
 
 const storage = cloudinaryStorage({
   cloudinary,
-  folder: "gifImages",
+  folder: "file",
   allowedFormats: ["jpg", "png", "jpeg"],
   transformation: [{ width: 500, height: 500, crop: "limit" }]
 });
 const upload = multer({ storage: storage });
 
-const pool = require("./pg");
 
-router.post("/", checkAuth, upload.single("gifImages"), (req, res, next) => {
-  console.log(req.file, "file");
-  const gifImages = {};
+
+router.post("/", upload.single("file"), (req, res, next) => {
+  // console.log(upload)
+  const file = {};
+  console.log(req.file);
+
   const title = req.body.title;
-  gifImages.url = req.file.url;
-  gifImages.id = req.file.public_id;
+  file.url = req.file.url;
+  file.id = req.file.public_id;
   const id = randomId();
   //const image = req.file
   pool
     .query(
-      "INSERT INTO gifs (id, title, imageurl, authorName) VALUES($1, $2, $3, $4)",
-      [id, title, req.file.url, authorName]
+      'INSERT INTO gifs (id, title, image, "gifImages") VALUES($1, $2, $3, $4) RETURNING *',
+      [id, title, req.file.url, req.file.public_id]
     )
     .then(data => {
-      res.status(201).json({
+      console.log(data);
+            res.status(201).json({
+              
         message: "GIF image successfully posted",
         data: {
           title,
-          authorName,
-          imageUrl: gifImages.url,
-          gitImages: gifImages.id,
+          // authorName,
+          imageUrl: file.url,
+          gifImages: file.id,
           gifId: id,
           createdOn: new Date(),
 
@@ -81,6 +87,7 @@ router.post("/", checkAuth, upload.single("gifImages"), (req, res, next) => {
       });
     });
 });
+
 router.post("/:id/:comment", checkAuth, (req, res, next) => {
   const id = req.params.id;
   const gifcomment = req.body.comment;
