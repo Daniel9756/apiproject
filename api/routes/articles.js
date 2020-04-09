@@ -23,7 +23,7 @@ router.get("/", checkAuth, (req, res, next) => {
 });
 // checkAuth,
 
-router.post("/", (req, res) => {
+router.post("/", (req, res, next) => {
   console.log(req);
   const { title, text, authorName } = req.body;
   const id = randomId();
@@ -33,7 +33,7 @@ router.post("/", (req, res) => {
       [id, title, text, authorName]
     )
     .then((data) => {
-        console.log(data),
+        console.log(data.rows[0].title),
       res.status(200).json({
         message: "Article successfully posted",
         createdOn: new Date(),

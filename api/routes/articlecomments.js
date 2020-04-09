@@ -4,6 +4,9 @@ const pool = require("./pg");
 const randomId = require("random-id");
 const checkAuth = require("./checkAuth");
 
+
+/* Articles comments */
+
 router.post("/:articlesId/comment", (req, res, next) => {
   const id = randomId();
   // const articleId = req.params.id;
@@ -20,7 +23,7 @@ pool
       message: "Comment successfully created",
       createdOn: new Date(),
       id: id,
-      data: comment,
+      comment
     });
   })
   .catch((err) => {
@@ -30,5 +33,9 @@ pool
     });
   });
 });
+
+
+/* Gifs comments */
+
 
 module.exports = router;

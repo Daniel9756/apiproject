@@ -54,15 +54,15 @@ router.post("/", upload.single("file"), (req, res, next) => {
   const file = {};
   console.log(req.file);
 
-  const title = req.body.title;
+  const { title, authorName } = req.body;
   file.url = req.file.url;
   file.id = req.file.public_id;
   const id = randomId();
   //const image = req.file
   pool
     .query(
-      'INSERT INTO gifs (id, title, image, "gifImages") VALUES($1, $2, $3, $4) RETURNING *',
-      [id, title, req.file.url, req.file.public_id]
+      'INSERT INTO gifs (id, title, image, "gifImages", "authorName") VALUES($1, $2, $3, $4, $5) RETURNING *',
+      [id, title, req.file.url, req.file.public_id, authorName]
     )
     .then(data => {
       console.log(data);
@@ -71,10 +71,10 @@ router.post("/", upload.single("file"), (req, res, next) => {
         message: "GIF image successfully posted",
         data: {
           title,
-          // authorName,
+          authorName,
           imageUrl: file.url,
           gifImages: file.id,
-          gifId: id,
+            id,
           createdOn: new Date(),
 
         }
@@ -88,7 +88,46 @@ router.post("/", upload.single("file"), (req, res, next) => {
     });
 });
 
-router.post("/:id/:comment", checkAuth, (req, res, next) => {
+router.put("/:id", upload.single("file"), (req, res, next) => {
+  const file = {};
+  console.log(req.file);
+
+  const { title, authorName } = req.body;
+  file.url = req.file.url;
+  file.id = req.file.public_id;
+  const id = req.params.id;
+
+  console.log(id, title);
+  console.log(file);
+
+  pool 
+  .query('UPDATE gifs SET title=$1, image=$2, "gifImages"=$3, "authorName"=$4  WHERE id=$5 RETURNING *',
+    [id, title, req.file.url, req.file.public_id, authorName]
+  )
+    .then((data) => {
+      console.log(data)
+      res.status(200).json({
+        message: "Gif successfully updated",
+        data: {
+          title,
+          authorName,
+          imageUrl: file.url,
+          gifImages: file.id,
+          createdOn: new Date(),
+
+        }
+        
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        error: err,
+      });
+    });
+});
+
+router.post("/:gifId/:comment", checkAuth, (req, res, next) => {
   const id = req.params.id;
   const gifcomment = req.body.comment;
   pool
@@ -155,7 +194,7 @@ router.get("/:id", checkAuth, (req, res, next) => {
     });
 });
 
-router.delete("/:id", checkAuth, (req, res, next) => {
+router.delete("/:id", (req, res, next) => {
   const id = req.params.id;
   pool
     .query("DELETE FROM gifs WHERE id=$1", [id])
