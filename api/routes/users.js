@@ -73,6 +73,7 @@ router.post("/signup", (req, res, next) => {
               });
           }
         });
+        
       } else {
         return res.status(400).json({
           message: "Email already in use"
@@ -81,7 +82,7 @@ router.post("/signup", (req, res, next) => {
     });
 });
 
-router.post("/login", (req, res, next) => {
+router.get("/login", (req, res, next) => {
   pool
     .query("SELECT * FROM employees WHERE email = $1", [req.body.email])
     .then(data => {

@@ -7,15 +7,15 @@ const randomId = require("random-id");
 router.post("/:gifId/gifComment", (req, res, next) => {
   const id = randomId();
   // const articleId = req.params.id;
-  const { gifId, gifComment, authorName } = req.body;
+  const { gifId, title, authorName } = req.body;
 
-  console.log(gifId, gifComment, authorName)
+  console.log(gifId, title, authorName)
   console.log(gifId)
 
 pool
   .query(
     'INSERT INTO gifcomments ( id, "gifId", "gifComment", "authorName") VALUES($1, $2, $3, $4) RETURNING *',
-    [id, gifId, gifComment, authorName]
+    [id, gifId, title, authorName]
   )
   .then((data) => {
     console.log(data)

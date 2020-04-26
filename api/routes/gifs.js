@@ -43,7 +43,7 @@ const storage = cloudinaryStorage({
   cloudinary,
   folder: "file",
   allowedFormats: ["jpg", "png", "jpeg"],
-  transformation: [{ width: 500, height: 500, crop: "limit" }]
+  transformation: [{ width: 200, height: 200, crop: "limit" }]
 });
 const upload = multer({ storage: storage });
 

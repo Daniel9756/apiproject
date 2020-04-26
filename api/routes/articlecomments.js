@@ -33,6 +33,25 @@ pool
     });
   });
 });
+router.delete("/:id", (req, res, next) => {
+  const id = req.body.id;
+  pool
+    .query("DELETE FROM comments WHERE id=$1 RETURNING *", [id])
+    .then((data) => {
+        console.log(data)
+      res.status(200).json({
+        message: "comments  successfully deleted",
+        Id: id,
+
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        error: err,
+      });
+    });
+});
 
 
 /* Gifs comments */
