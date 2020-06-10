@@ -43,7 +43,7 @@ const storage = cloudinaryStorage({
   cloudinary,
   folder: "file",
   allowedFormats: ["jpg", "png", "jpeg"],
-  transformation: [{ width: 200, height: 200, crop: "limit" }]
+  transformation: [{ width: 150, height: 150, crop: "limit" }]
 });
 const upload = multer({ storage: storage });
 
@@ -58,11 +58,12 @@ router.post("/", upload.single("file"), (req, res, next) => {
   file.url = req.file.url;
   file.id = req.file.public_id;
   const id = randomId();
+  const createdAt = new Date().toLocaleString()
   //const image = req.file
   pool
     .query(
-      'INSERT INTO gifs (id, title, image, "gifImages", "authorName") VALUES($1, $2, $3, $4, $5) RETURNING *',
-      [id, title, req.file.url, req.file.public_id, authorName]
+      'INSERT INTO gifs (id, title, image, "gifImages", "authorName", "createdAt") VALUES($1, $2, $3, $4, $5, $6) RETURNING *',
+      [id, title, req.file.url, req.file.public_id, authorName, createdAt]
     )
     .then(data => {
       console.log(data);
@@ -75,9 +76,9 @@ router.post("/", upload.single("file"), (req, res, next) => {
           imageUrl: file.url,
           gifImages: file.id,
             id,
-          createdOn: new Date(),
+          createdAt
 
-        }
+        },
       });
     })
     .catch(err => {
@@ -100,9 +101,10 @@ router.put("/:id", upload.single("file"), (req, res, next) => {
   console.log(id, title);
   console.log(file);
 
+
   pool 
-  .query('UPDATE gifs SET title=$1, image=$2, "gifImages"=$3, "authorName"=$4  WHERE id=$5 RETURNING *',
-    [id, title, req.file.url, req.file.public_id, authorName]
+  .query('UPDATE gifs SET title=$1, image=$2, "gifImages"=$3 WHERE id=$5 RETURNING *',
+    [id, title, req.file.url, req.file.public_id]
   )
     .then((data) => {
       console.log(data)
@@ -150,7 +152,7 @@ router.post("/:gifId/:comment", checkAuth, (req, res, next) => {
     });
 });
 
-router.get("/", checkAuth, (req, res, next) => {
+router.get("/", (req, res, next) => {
   pool
     .query("SELECT * FROM gifs")
     .then(data => {

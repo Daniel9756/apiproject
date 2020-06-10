@@ -4,13 +4,12 @@ const pool = require("./pg");
 const randomId = require("random-id");
 const checkAuth = require("./checkAuth");
 
-router.get("/", checkAuth, (req, res, next) => {
+router.get("/", (req, res, next) => {
   pool
     .query("select * from articles")
     .then((data) => {
       res.status(200).json({
         status: "success",
-        createdOn: new Date(),
         data: data.rows,
       });
     })
@@ -27,20 +26,21 @@ router.post("/", (req, res, next) => {
   console.log(req);
   const { title, text, authorName } = req.body;
   const id = randomId();
+  const createdAt = new Date().toLocaleString();
   pool
     .query(
-      'INSERT INTO articles (id, title, text, "authorName") VALUES($1, $2, $3, $4) RETURNING *',
-      [id, title, text, authorName]
+      'INSERT INTO articles (id, title, text, "authorName", "createdAt") VALUES($1, $2, $3, $4, $5) RETURNING *',
+      [id, title, text, authorName, createdAt]
     )
     .then((data) => {
         console.log(data.rows[0].title),
       res.status(200).json({
         message: "Article successfully posted",
-        createdOn: new Date(),
         id: data.rows[0].id,
         title: data.rows[0].title,
         text: data.rows[0].text,
-        authorName: data.rows[0].authorName
+        authorName: data.rows[0].authorName,
+        createdAt: data.rows[0].createdAt
 
         // title: data.rows.title,
         // text: data.rows.text,
