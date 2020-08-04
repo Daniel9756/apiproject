@@ -82,7 +82,8 @@ router.post("/signup", (req, res, next) => {
     });
 });
 
-router.get("/login", (req, res, next) => {
+router.post("/login", (req, res, next) => {
+  console.log(req.body)
   pool
     .query("SELECT * FROM employees WHERE email = $1", [req.body.email])
     .then(data => {
@@ -90,7 +91,7 @@ router.get("/login", (req, res, next) => {
         res.status(400).json({
           message: "Email does not exists"
         });
-      }
+      } 
       bcrypt
         .compare(req.body.password, data.rows[0].password)
         .then(result => {

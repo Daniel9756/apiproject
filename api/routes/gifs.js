@@ -75,7 +75,7 @@ router.post("/", upload.single("file"), (req, res, next) => {
           authorName,
           imageUrl: file.url,
           gifImages: file.id,
-            id,
+          id,
           createdAt
 
         },
@@ -103,8 +103,8 @@ router.put("/:id", upload.single("file"), (req, res, next) => {
 
 
   pool 
-  .query('UPDATE gifs SET title=$1, image=$2, "gifImages"=$3 WHERE id=$5 RETURNING *',
-    [id, title, req.file.url, req.file.public_id]
+  .query('UPDATE gifs SET title=$1, "authorName"=$2 image=$3, "gifImages"=$4 WHERE id=$5 RETURNING *',
+    [title, authorName, req.file.url, req.file.public_id, id]
   )
     .then((data) => {
       console.log(data)
@@ -157,7 +157,10 @@ router.get("/", (req, res, next) => {
     .query("SELECT * FROM gifs")
     .then(data => {
       res.status(200).json({
-        data: data.rows
+        data: data.rows.map(g => ({...g, imageUrl: g.image})),
+        // id: data.rows[0].id,
+        // imageUrl: data.rows[0].imageUrl,
+        // createdAt: data.rows[0].createdAt
       });
     })
 

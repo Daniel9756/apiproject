@@ -33,6 +33,25 @@ pool
     });
   });
 });
+// get article comment
+router.get("/", (req, res, next) => {
+  pool
+    .query("select * from comments")
+    .then((data) => {
+      res.status(200).json({
+        status: "success",
+        data: data.rows,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        error: err,
+      });
+    });
+});
+
+
 router.delete("/:id", (req, res, next) => {
   const id = req.body.id;
   pool

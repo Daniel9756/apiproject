@@ -33,20 +33,15 @@ router.post("/", (req, res, next) => {
       [id, title, text, authorName, createdAt]
     )
     .then((data) => {
-        console.log(data.rows[0].title),
-      res.status(200).json({
-        message: "Article successfully posted",
-        id: data.rows[0].id,
-        title: data.rows[0].title,
-        text: data.rows[0].text,
-        authorName: data.rows[0].authorName,
-        createdAt: data.rows[0].createdAt
-
-        // title: data.rows.title,
-        // text: data.rows.text,
-        // authorName: data.rows.authorName
-        // data: { title, text, authorName },
-      });
+      console.log(data.rows[0].title),
+        res.status(200).json({
+          message: "Article successfully posted",
+          id: data.rows[0].id,
+          title: data.rows[0].title,
+          text: data.rows[0].text,
+          authorName: data.rows[0].authorName,
+          createdAt: data.rows[0].createdAt,
+        });
     })
     .catch((err) => {
       console.log(err);
@@ -55,8 +50,6 @@ router.post("/", (req, res, next) => {
       });
     });
 });
-
-
 
 router.get("/:id", checkAuth, (req, res, next) => {
   const id = req.params.id;
@@ -112,11 +105,10 @@ router.delete("/:id", (req, res, next) => {
   pool
     .query("DELETE FROM articles WHERE id=$1 RETURNING *", [id])
     .then((data) => {
-        console.log(data)
+      console.log(data);
       res.status(200).json({
         message: "Article  successfully deleted",
         Id: id,
-
       });
     })
     .catch((err) => {
